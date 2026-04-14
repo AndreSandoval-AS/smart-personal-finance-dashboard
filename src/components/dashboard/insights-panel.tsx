@@ -6,7 +6,7 @@ interface InsightsPanelProps {
 
 export function InsightsPanel({ insights }: InsightsPanelProps) {
   return (
-    <section className="rounded-2xl border border-indigo-300/30 bg-indigo-500/10 p-5 backdrop-blur-md">
+    <section className="glass-card-strong rounded-2xl p-5">
       <div className="mb-4 flex items-center gap-2">
         <Sparkles className="text-indigo-300" size={18} />
         <h2 className="text-lg font-semibold text-white">AI Insights</h2>

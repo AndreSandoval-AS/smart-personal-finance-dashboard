@@ -55,7 +55,7 @@ export function DashboardClient() {
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-      <header className="rounded-2xl border border-white/15 bg-white/10 p-6 shadow-xl shadow-black/20 backdrop-blur-md">
+      <header className="glass-card rounded-2xl p-6 shadow-xl shadow-black/20">
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-300">
           Personal Finance Dashboard
         </p>

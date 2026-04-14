@@ -9,7 +9,7 @@ interface SummaryCardProps {
 
 export function SummaryCard({ title, value, subtitle, icon: Icon }: SummaryCardProps) {
   return (
-    <article className="rounded-2xl border border-white/15 bg-white/10 p-5 shadow-lg shadow-black/25 backdrop-blur-md">
+    <article className="glass-card rounded-2xl p-5 shadow-lg shadow-black/25">
       <div className="flex items-start justify-between">
         <p className="text-sm text-slate-300">{title}</p>
         <span className="rounded-lg bg-indigo-500/20 p-2 text-indigo-300">

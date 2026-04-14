@@ -11,6 +11,7 @@ import {
   Tooltip,
 } from "chart.js";
 import { Doughnut, Line } from "react-chartjs-2";
+import { chartPalette, chartTheme } from "@/lib/design-tokens";
 import type { Expense } from "@/types/expense";
 
 ChartJS.register(
@@ -52,7 +53,7 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
 
   return (
     <section className="grid gap-4 lg:grid-cols-2">
-      <article className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-md">
+      <article className="glass-card rounded-2xl p-5">
         <h2 className="mb-4 text-lg font-semibold text-white">Category Breakdown</h2>
         <Doughnut
           data={{
@@ -60,28 +61,19 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
             datasets: [
               {
                 data: categoryData.map(([, amount]) => amount),
-                backgroundColor: [
-                  "#6366F1",
-                  "#06B6D4",
-                  "#10B981",
-                  "#F59E0B",
-                  "#EF4444",
-                  "#8B5CF6",
-                  "#14B8A6",
-                  "#64748B",
-                ],
+                backgroundColor: chartPalette,
               },
             ],
           }}
           options={{
             plugins: {
-              legend: { labels: { color: "#cbd5e1" } },
+              legend: { labels: { color: chartTheme.textSecondary } },
             },
           }}
         />
       </article>
 
-      <article className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-md">
+      <article className="glass-card rounded-2xl p-5">
         <h2 className="mb-4 text-lg font-semibold text-white">Monthly Spending Trend</h2>
         <Line
           data={{
@@ -90,8 +82,8 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
               {
                 label: "Spending",
                 data: monthlyData.map(([, amount]) => amount),
-                borderColor: "#818cf8",
-                backgroundColor: "rgba(129,140,248,0.25)",
+                borderColor: chartTheme.line,
+                backgroundColor: chartTheme.lineFill,
                 tension: 0.35,
                 fill: true,
               },
@@ -99,11 +91,11 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
           }}
           options={{
             scales: {
-              x: { ticks: { color: "#cbd5e1" }, grid: { color: "rgba(148,163,184,0.2)" } },
-              y: { ticks: { color: "#cbd5e1" }, grid: { color: "rgba(148,163,184,0.2)" } },
+              x: { ticks: { color: chartTheme.textSecondary }, grid: { color: chartTheme.grid } },
+              y: { ticks: { color: chartTheme.textSecondary }, grid: { color: chartTheme.grid } },
             },
             plugins: {
-              legend: { labels: { color: "#cbd5e1" } },
+              legend: { labels: { color: chartTheme.textSecondary } },
             },
           }}
         />

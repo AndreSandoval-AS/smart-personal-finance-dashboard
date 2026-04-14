@@ -3,6 +3,14 @@
 :root {
   --background: #020617;
   --foreground: #e2e8f0;
+  --surface-card: rgba(15, 23, 42, 0.58);
+  --surface-card-strong: rgba(15, 23, 42, 0.72);
+  --surface-border: rgba(148, 163, 184, 0.22);
+  --text-strong: #f8fafc;
+  --text-body: #cbd5e1;
+  --text-muted: #94a3b8;
+  --accent-primary: #7c83ff;
+  --accent-cyan: #35c4dc;
 }
 
 @theme inline {
@@ -20,4 +28,16 @@ body {
     linear-gradient(160deg, #020617 0%, #0f172a 55%, #1e1b4b 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.glass-card {
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card);
+  backdrop-filter: blur(14px);
+}
+
+.glass-card-strong {
+  border: 1px solid var(--surface-border);
+  background: var(--surface-card-strong);
+  backdrop-filter: blur(16px);
 }

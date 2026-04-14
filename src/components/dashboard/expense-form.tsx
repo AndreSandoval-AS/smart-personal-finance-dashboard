@@ -35,7 +35,7 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
   }
 
   return (
-    <section className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-md">
+    <section className="glass-card rounded-2xl p-5">
       <div className="mb-4 flex items-center gap-2">
         <PlusCircle className="text-indigo-300" size={18} />
         <h2 className="text-lg font-semibold text-white">Add Expense</h2>
