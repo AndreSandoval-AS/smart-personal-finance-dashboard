@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import { Wallet } from "lucide-react";
 import { Doughnut, Line } from "react-chartjs-2";
+import { getCategoryTotals, getMonthlyTotals } from "@/lib/expense-analytics";
 import { chartPalette, chartTheme } from "@/lib/design-tokens";
 import type { Expense } from "@/types/expense";
 
@@ -35,25 +36,6 @@ const CURRENCY = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 0,
 });
-
-function getMonthlyTotals(expenses: Expense[]) {
-  const totals = expenses.reduce<Record<string, number>>((acc, expense) => {
-    const month = expense.date.slice(0, 7);
-    acc[month] = (acc[month] ?? 0) + expense.amount;
-    return acc;
-  }, {});
-
-  return Object.entries(totals).sort((a, b) => a[0].localeCompare(b[0]));
-}
-
-function getCategoryTotals(expenses: Expense[]) {
-  const totals = expenses.reduce<Record<string, number>>((acc, expense) => {
-    acc[expense.category] = (acc[expense.category] ?? 0) + expense.amount;
-    return acc;
-  }, {});
-
-  return Object.entries(totals).sort((a, b) => b[1] - a[1]);
-}
 
 function tooltipConfig(): ChartOptions<"doughnut" | "line">["plugins"] {
   return {
@@ -86,10 +68,10 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
         {hasCategoryData ? (
           <Doughnut
             data={{
-              labels: categoryData.map(([category]) => category),
+              labels: categoryData.map((item) => item.category),
               datasets: [
                 {
-                  data: categoryData.map(([, amount]) => amount),
+                  data: categoryData.map((item) => item.amount),
                   backgroundColor: chartPalette,
                 },
               ],
@@ -112,11 +94,11 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
         {hasMonthlyData ? (
           <Line
             data={{
-              labels: monthlyData.map(([month]) => month),
+              labels: monthlyData.map((item) => item.month),
               datasets: [
                 {
                   label: "Spending",
-                  data: monthlyData.map(([, amount]) => amount),
+                  data: monthlyData.map((item) => item.amount),
                   borderColor: chartTheme.line,
                   backgroundColor: chartTheme.lineFill,
                   tension: 0.35,

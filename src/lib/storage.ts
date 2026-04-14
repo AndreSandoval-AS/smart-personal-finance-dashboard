@@ -33,6 +33,23 @@ export const seedExpenses: Expense[] = [
   },
 ];
 
+function isValidExpense(value: unknown): value is Expense {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const item = value as Record<string, unknown>;
+
+  return (
+    typeof item.id === "string" &&
+    typeof item.category === "string" &&
+    typeof item.amount === "number" &&
+    Number.isFinite(item.amount) &&
+    typeof item.date === "string" &&
+    typeof item.notes === "string"
+  );
+}
+
 export function loadExpenses(): Expense[] {
   if (typeof window === "undefined") {
     return seedExpenses;
@@ -44,12 +61,13 @@ export function loadExpenses(): Expense[] {
   }
 
   try {
-    const parsed = JSON.parse(raw) as Expense[];
+    const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) {
       return seedExpenses;
     }
 
-    return parsed;
+    const validExpenses = parsed.filter(isValidExpense);
+    return validExpenses.length ? validExpenses : seedExpenses;
   } catch {
     return seedExpenses;
   }

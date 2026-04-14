@@ -7,6 +7,13 @@ import { ExpenseForm } from "@/components/dashboard/expense-form";
 import { ExpenseList } from "@/components/dashboard/expense-list";
 import { InsightsPanel } from "@/components/dashboard/insights-panel";
 import { SummaryCard } from "@/components/dashboard/summary-card";
+import {
+  getMonthKey,
+  getMonthlySpending,
+  getTopCategory,
+  getTotalSpending,
+  sortExpensesByDateDesc,
+} from "@/lib/expense-analytics";
 import { buildInsights } from "@/lib/insights";
 import { loadExpenses, saveExpenses, seedExpenses } from "@/lib/storage";
 import type { Expense } from "@/types/expense";
@@ -15,10 +22,6 @@ const CURRENCY = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
-
-function getMonthKey(date: Date): string {
-  return date.toISOString().slice(0, 7);
-}
 
 export function DashboardClient() {
   const [expenses, setExpenses] = useState<Expense[]>(() =>
@@ -31,19 +34,10 @@ export function DashboardClient() {
   }, [expenses]);
 
   const totals = useMemo(() => {
-    const totalSpending = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+    const totalSpending = getTotalSpending(expenses);
     const currentMonth = getMonthKey(new Date());
-    const monthlySpending = expenses
-      .filter((expense) => expense.date.startsWith(currentMonth))
-      .reduce((sum, expense) => sum + expense.amount, 0);
-
-    const categoryTotals = expenses.reduce<Record<string, number>>((acc, expense) => {
-      acc[expense.category] = (acc[expense.category] ?? 0) + expense.amount;
-      return acc;
-    }, {});
-
-    const topCategory =
-      Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "N/A";
+    const monthlySpending = getMonthlySpending(expenses, currentMonth);
+    const topCategory = getTopCategory(expenses);
 
     return { totalSpending, monthlySpending, topCategory };
   }, [expenses]);
@@ -57,7 +51,7 @@ export function DashboardClient() {
         ? current.map((item) => (item.id === expense.id ? expense : item))
         : [expense, ...current];
 
-      return nextExpenses.sort((a, b) => b.date.localeCompare(a.date));
+      return sortExpensesByDateDesc(nextExpenses);
     });
     setEditingExpense(null);
   }

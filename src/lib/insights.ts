@@ -1,29 +1,18 @@
 import type { Expense } from "@/types/expense";
+import {
+  getCategoryTotals,
+  getMonthKey,
+  getMonthlySpending,
+  getTotalSpending,
+} from "@/lib/expense-analytics";
 
 const CURRENCY = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
 
-function getMonthKey(date: Date): string {
-  return date.toISOString().slice(0, 7);
-}
-
 function shiftMonth(date: Date, delta: number): Date {
   return new Date(date.getFullYear(), date.getMonth() + delta, 1);
-}
-
-function getMonthlyTotal(expenses: Expense[], monthKey: string): number {
-  return expenses
-    .filter((item) => item.date.startsWith(monthKey))
-    .reduce((sum, item) => sum + item.amount, 0);
-}
-
-function getCategoryTotals(expenses: Expense[]): Record<string, number> {
-  return expenses.reduce<Record<string, number>>((acc, item) => {
-    acc[item.category] = (acc[item.category] ?? 0) + item.amount;
-    return acc;
-  }, {});
 }
 
 function getLargestExpense(expenses: Expense[]): Expense | null {
@@ -67,19 +56,15 @@ export function buildInsights(expenses: Expense[]): string[] {
     ];
   }
 
-  const totalsByCategory = getCategoryTotals(expenses);
-
-  const [topCategory = "Other"] = Object.entries(totalsByCategory).sort(
-    (a, b) => b[1] - a[1],
-  )[0] ?? ["Other", 0];
-
-  const topCategoryTotal = totalsByCategory[topCategory] ?? 0;
-  const total = expenses.reduce((sum, item) => sum + item.amount, 0);
+  const sortedCategoryTotals = getCategoryTotals(expenses);
+  const topCategory = sortedCategoryTotals[0]?.category ?? "Other";
+  const topCategoryTotal = sortedCategoryTotals[0]?.amount ?? 0;
+  const total = getTotalSpending(expenses);
   const now = new Date();
   const currentMonthKey = getMonthKey(now);
   const previousMonthKey = getMonthKey(shiftMonth(now, -1));
-  const monthlyTotal = getMonthlyTotal(expenses, currentMonthKey);
-  const previousMonthTotal = getMonthlyTotal(expenses, previousMonthKey);
+  const monthlyTotal = getMonthlySpending(expenses, currentMonthKey);
+  const previousMonthTotal = getMonthlySpending(expenses, previousMonthKey);
   const avgExpense = total / expenses.length;
   const largestExpense = getLargestExpense(expenses);
   const categoryShare = total > 0 ? (topCategoryTotal / total) * 100 : 0;
