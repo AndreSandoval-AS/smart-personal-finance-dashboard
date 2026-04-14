@@ -24,6 +24,7 @@ export function DashboardClient() {
   const [expenses, setExpenses] = useState<Expense[]>(() =>
     typeof window === "undefined" ? seedExpenses : loadExpenses(),
   );
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   useEffect(() => {
     saveExpenses(expenses);
@@ -49,8 +50,29 @@ export function DashboardClient() {
 
   const insights = useMemo(() => buildInsights(expenses), [expenses]);
 
-  function handleAddExpense(expense: Expense) {
-    setExpenses((current) => [expense, ...current].sort((a, b) => b.date.localeCompare(a.date)));
+  function handleSaveExpense(expense: Expense) {
+    setExpenses((current) => {
+      const expenseExists = current.some((item) => item.id === expense.id);
+      const nextExpenses = expenseExists
+        ? current.map((item) => (item.id === expense.id ? expense : item))
+        : [expense, ...current];
+
+      return nextExpenses.sort((a, b) => b.date.localeCompare(a.date));
+    });
+    setEditingExpense(null);
+  }
+
+  function handleEditExpense(expense: Expense) {
+    setEditingExpense(expense);
+  }
+
+  function handleDeleteExpense(expenseId: string) {
+    setExpenses((current) => current.filter((expense) => expense.id !== expenseId));
+    setEditingExpense((current) => (current?.id === expenseId ? null : current));
+  }
+
+  function handleCancelEdit() {
+    setEditingExpense(null);
   }
 
   return (
@@ -91,12 +113,21 @@ export function DashboardClient() {
 
       <section className="grid gap-4 xl:grid-cols-[360px_1fr] lg:gap-5">
         <div className="space-y-4 lg:space-y-5">
-          <ExpenseForm onAddExpense={handleAddExpense} />
+          <ExpenseForm
+            key={editingExpense?.id ?? "new-expense"}
+            onSaveExpense={handleSaveExpense}
+            editingExpense={editingExpense}
+            onCancelEdit={handleCancelEdit}
+          />
           <InsightsPanel insights={insights} />
         </div>
         <div className="space-y-4 lg:space-y-5">
           <ExpenseCharts expenses={expenses} />
-          <ExpenseList expenses={expenses} />
+          <ExpenseList
+            expenses={expenses}
+            onEditExpense={handleEditExpense}
+            onDeleteExpense={handleDeleteExpense}
+          />
         </div>
       </section>
     </main>

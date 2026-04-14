@@ -1,18 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { PlusCircle } from "lucide-react";
+import { PencilLine, PlusCircle, X } from "lucide-react";
 import { EXPENSE_CATEGORIES, type Expense, type ExpenseCategory } from "@/types/expense";
 
 interface ExpenseFormProps {
-  onAddExpense: (expense: Expense) => void;
+  onSaveExpense: (expense: Expense) => void;
+  editingExpense: Expense | null;
+  onCancelEdit: () => void;
 }
 
-export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
-  const [category, setCategory] = useState<ExpenseCategory>("Food");
-  const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [notes, setNotes] = useState("");
+export function ExpenseForm({ onSaveExpense, editingExpense, onCancelEdit }: ExpenseFormProps) {
+  const [category, setCategory] = useState<ExpenseCategory>(editingExpense?.category ?? "Food");
+  const [amount, setAmount] = useState(editingExpense ? String(editingExpense.amount) : "");
+  const [date, setDate] = useState(
+    () => editingExpense?.date ?? new Date().toISOString().slice(0, 10),
+  );
+  const [notes, setNotes] = useState(
+    editingExpense && editingExpense.notes !== "No notes" ? editingExpense.notes : "",
+  );
+  const isEditing = Boolean(editingExpense);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,23 +29,29 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
       return;
     }
 
-    onAddExpense({
-      id: crypto.randomUUID(),
+    onSaveExpense({
+      id: editingExpense?.id ?? crypto.randomUUID(),
       category,
       amount: numericAmount,
       date,
       notes: notes.trim() || "No notes",
     });
 
-    setAmount("");
-    setNotes("");
+    if (!editingExpense) {
+      setAmount("");
+      setNotes("");
+    }
   }
 
   return (
     <section className="glass-card rounded-3xl p-5 sm:p-6">
       <div className="mb-5 flex items-center gap-2">
-        <PlusCircle className="text-indigo-300" size={18} />
-        <h2 className="panel-title">Add Expense</h2>
+        {isEditing ? (
+          <PencilLine className="text-indigo-300" size={18} />
+        ) : (
+          <PlusCircle className="text-indigo-300" size={18} />
+        )}
+        <h2 className="panel-title">{isEditing ? "Edit Expense" : "Add Expense"}</h2>
       </div>
 
       <form onSubmit={handleSubmit} className="grid gap-3.5">
@@ -85,8 +98,18 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
           type="submit"
           className="mt-1 inline-flex items-center justify-center rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-400"
         >
-          Save Expense
+          {isEditing ? "Update Expense" : "Save Expense"}
         </button>
+        {isEditing ? (
+          <button
+            type="button"
+            onClick={onCancelEdit}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-slate-900/55 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-slate-900/75"
+          >
+            <X size={16} />
+            Cancel Edit
+          </button>
+        ) : null}
       </form>
     </section>
   );
