@@ -54,21 +54,21 @@ export function DashboardClient() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
-      <header className="glass-card rounded-2xl p-6 shadow-xl shadow-black/20">
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-300">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:gap-7 lg:px-8">
+      <header className="glass-card rounded-3xl p-6 sm:p-7">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-indigo-300/95">
           Personal Finance Dashboard
         </p>
-        <h1 className="mt-2 text-3xl font-semibold text-white sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
           Track spending. Learn patterns. Save smarter.
         </h1>
-        <p className="mt-3 max-w-2xl text-sm text-slate-300">
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
           A beginner-friendly dashboard built with local data, responsive charts, and AI-style
           suggestions so you can better manage your money.
         </p>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-3 lg:gap-5">
         <SummaryCard
           title="Total Spending"
           value={CURRENCY.format(totals.totalSpending)}
@@ -89,12 +89,12 @@ export function DashboardClient() {
         />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[340px_1fr]">
-        <div className="space-y-4">
+      <section className="grid gap-4 xl:grid-cols-[360px_1fr] lg:gap-5">
+        <div className="space-y-4 lg:space-y-5">
           <ExpenseForm onAddExpense={handleAddExpense} />
           <InsightsPanel insights={insights} />
         </div>
-        <div className="space-y-4">
+        <div className="space-y-4 lg:space-y-5">
           <ExpenseCharts expenses={expenses} />
           <ExpenseList expenses={expenses} />
         </div>

@@ -35,17 +35,17 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
   }
 
   return (
-    <section className="glass-card rounded-2xl p-5">
-      <div className="mb-4 flex items-center gap-2">
+    <section className="glass-card rounded-3xl p-5 sm:p-6">
+      <div className="mb-5 flex items-center gap-2">
         <PlusCircle className="text-indigo-300" size={18} />
-        <h2 className="text-lg font-semibold text-white">Add Expense</h2>
+        <h2 className="panel-title">Add Expense</h2>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-3">
+      <form onSubmit={handleSubmit} className="grid gap-3.5">
         <select
           value={category}
           onChange={(event) => setCategory(event.target.value as ExpenseCategory)}
-          className="rounded-lg border border-white/20 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none ring-indigo-400/60 focus:ring-2"
+          className="field-control rounded-xl px-3.5 py-2.5 text-sm"
         >
           {EXPENSE_CATEGORIES.map((item) => (
             <option key={item} value={item}>
@@ -62,7 +62,7 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
           placeholder="Amount"
-          className="rounded-lg border border-white/20 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none ring-indigo-400/60 placeholder:text-slate-400 focus:ring-2"
+          className="field-control rounded-xl px-3.5 py-2.5 text-sm"
         />
 
         <input
@@ -70,7 +70,7 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
           required
           value={date}
           onChange={(event) => setDate(event.target.value)}
-          className="rounded-lg border border-white/20 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none ring-indigo-400/60 focus:ring-2"
+          className="field-control rounded-xl px-3.5 py-2.5 text-sm"
         />
 
         <textarea
@@ -78,12 +78,12 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
           onChange={(event) => setNotes(event.target.value)}
           placeholder="Notes (optional)"
           rows={3}
-          className="rounded-lg border border-white/20 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none ring-indigo-400/60 placeholder:text-slate-400 focus:ring-2"
+          className="field-control rounded-xl px-3.5 py-2.5 text-sm"
         />
 
         <button
           type="submit"
-          className="mt-1 inline-flex items-center justify-center rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-400"
+          className="mt-1 inline-flex items-center justify-center rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-400"
         >
           Save Expense
         </button>

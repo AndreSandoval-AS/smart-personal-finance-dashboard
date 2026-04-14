@@ -52,9 +52,9 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
   const categoryData = getCategoryTotals(expenses);
 
   return (
-    <section className="grid gap-4 lg:grid-cols-2">
-      <article className="glass-card rounded-2xl p-5">
-        <h2 className="mb-4 text-lg font-semibold text-white">Category Breakdown</h2>
+    <section className="grid gap-4 lg:grid-cols-2 lg:gap-5">
+      <article className="glass-card rounded-3xl p-5 sm:p-6">
+        <h2 className="panel-title mb-5">Category Breakdown</h2>
         <Doughnut
           data={{
             labels: categoryData.map(([category]) => category),
@@ -73,8 +73,8 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
         />
       </article>
 
-      <article className="glass-card rounded-2xl p-5">
-        <h2 className="mb-4 text-lg font-semibold text-white">Monthly Spending Trend</h2>
+      <article className="glass-card rounded-3xl p-5 sm:p-6">
+        <h2 className="panel-title mb-5">Monthly Spending Trend</h2>
         <Line
           data={{
             labels: monthlyData.map(([month]) => month),
