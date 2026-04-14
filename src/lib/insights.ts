@@ -5,8 +5,58 @@ const CURRENCY = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
-function getCurrentMonthKey(): string {
-  return new Date().toISOString().slice(0, 7);
+function getMonthKey(date: Date): string {
+  return date.toISOString().slice(0, 7);
+}
+
+function shiftMonth(date: Date, delta: number): Date {
+  return new Date(date.getFullYear(), date.getMonth() + delta, 1);
+}
+
+function getMonthlyTotal(expenses: Expense[], monthKey: string): number {
+  return expenses
+    .filter((item) => item.date.startsWith(monthKey))
+    .reduce((sum, item) => sum + item.amount, 0);
+}
+
+function getCategoryTotals(expenses: Expense[]): Record<string, number> {
+  return expenses.reduce<Record<string, number>>((acc, item) => {
+    acc[item.category] = (acc[item.category] ?? 0) + item.amount;
+    return acc;
+  }, {});
+}
+
+function getLargestExpense(expenses: Expense[]): Expense | null {
+  if (!expenses.length) {
+    return null;
+  }
+
+  return expenses.reduce((largest, current) =>
+    current.amount > largest.amount ? current : largest,
+  );
+}
+
+function getMoMMessage(currentMonthTotal: number, previousMonthTotal: number): string {
+  if (previousMonthTotal <= 0 && currentMonthTotal > 0) {
+    return `You have spent ${CURRENCY.format(currentMonthTotal)} this month. Keep tracking to build a month-over-month baseline.`;
+  }
+
+  if (previousMonthTotal <= 0) {
+    return "No spending logged for this month yet. Add expenses as you go to unlock trend insights.";
+  }
+
+  const diff = currentMonthTotal - previousMonthTotal;
+  const percentage = (Math.abs(diff) / previousMonthTotal) * 100;
+
+  if (diff > 0) {
+    return `Monthly spending is up ${percentage.toFixed(0)}% vs last month (${CURRENCY.format(currentMonthTotal)} vs ${CURRENCY.format(previousMonthTotal)}). Review variable costs to bring this closer to last month.`;
+  }
+
+  if (diff < 0) {
+    return `Great progress: monthly spending is down ${percentage.toFixed(0)}% vs last month (${CURRENCY.format(currentMonthTotal)} vs ${CURRENCY.format(previousMonthTotal)}). Keep this pace by maintaining the same habits.`;
+  }
+
+  return `Monthly spending is steady at ${CURRENCY.format(currentMonthTotal)}, matching last month. Try trimming one optional purchase to create extra savings.`;
 }
 
 export function buildInsights(expenses: Expense[]): string[] {
@@ -17,10 +67,7 @@ export function buildInsights(expenses: Expense[]): string[] {
     ];
   }
 
-  const totalsByCategory = expenses.reduce<Record<string, number>>((acc, item) => {
-    acc[item.category] = (acc[item.category] ?? 0) + item.amount;
-    return acc;
-  }, {});
+  const totalsByCategory = getCategoryTotals(expenses);
 
   const [topCategory = "Other"] = Object.entries(totalsByCategory).sort(
     (a, b) => b[1] - a[1],
@@ -28,17 +75,48 @@ export function buildInsights(expenses: Expense[]): string[] {
 
   const topCategoryTotal = totalsByCategory[topCategory] ?? 0;
   const total = expenses.reduce((sum, item) => sum + item.amount, 0);
-
-  const currentMonthKey = getCurrentMonthKey();
-  const monthlyTotal = expenses
-    .filter((item) => item.date.startsWith(currentMonthKey))
-    .reduce((sum, item) => sum + item.amount, 0);
-
+  const now = new Date();
+  const currentMonthKey = getMonthKey(now);
+  const previousMonthKey = getMonthKey(shiftMonth(now, -1));
+  const monthlyTotal = getMonthlyTotal(expenses, currentMonthKey);
+  const previousMonthTotal = getMonthlyTotal(expenses, previousMonthKey);
   const avgExpense = total / expenses.length;
+  const largestExpense = getLargestExpense(expenses);
+  const categoryShare = total > 0 ? (topCategoryTotal / total) * 100 : 0;
+  const discretionaryCategories = new Set(["Food", "Entertainment", "Shopping"]);
+  const discretionaryTotal = expenses
+    .filter((expense) => discretionaryCategories.has(expense.category))
+    .reduce((sum, expense) => sum + expense.amount, 0);
+  const discretionaryShare = total > 0 ? (discretionaryTotal / total) * 100 : 0;
+  const suggestedCategoryCap = topCategoryTotal * 0.9;
+  const largestOutlierThreshold = avgExpense * 1.8;
 
-  return [
-    `Your top spending category is ${topCategory} at ${CURRENCY.format(topCategoryTotal)}. Consider setting a soft cap for this category.`,
-    `This month you have spent ${CURRENCY.format(monthlyTotal)}. Try reducing one discretionary purchase to stay on target.`,
-    `Your average expense is ${CURRENCY.format(avgExpense)}. Grouping errands could lower transaction frequency and save money.`,
-  ];
+  const insights: string[] = [];
+
+  insights.push(
+    `Top category is ${topCategory} at ${CURRENCY.format(topCategoryTotal)} (${categoryShare.toFixed(0)}% of total spend). Set a monthly cap near ${CURRENCY.format(suggestedCategoryCap)} to lower category concentration.`,
+  );
+  insights.push(getMoMMessage(monthlyTotal, previousMonthTotal));
+
+  if (largestExpense && largestExpense.amount >= largestOutlierThreshold) {
+    insights.push(
+      `Largest expense was ${CURRENCY.format(largestExpense.amount)} (${largestExpense.category}) on ${largestExpense.date}. Because it is well above your average ${CURRENCY.format(avgExpense)}, consider planning this type of purchase in advance.`,
+    );
+  } else {
+    insights.push(
+      `Average expense is ${CURRENCY.format(avgExpense)} and no major outlier was detected. Grouping errands and recurring payments can reduce transaction count and improve control.`,
+    );
+  }
+
+  if (discretionaryShare >= 35) {
+    insights.push(
+      `Discretionary spend (Food, Entertainment, Shopping) is ${discretionaryShare.toFixed(0)}% of total. Cutting this by 10% could free about ${CURRENCY.format(discretionaryTotal * 0.1)} for savings.`,
+    );
+  } else {
+    insights.push(
+      `Discretionary spend is ${discretionaryShare.toFixed(0)}% of total, which is fairly controlled. Redirecting even one small weekly expense into savings can still build momentum.`,
+    );
+  }
+
+  return insights.slice(0, 4);
 }
